@@ -73,3 +73,54 @@ The `Broker` class has an objet that represents connected clients who implement 
 
 #### Broker
 The `Broker` implement the `registerClient` method to register a client. This method instantiate a new `Client` who are going to atend the messages of the `SimClient`. The `Broker` has a cache for quick access to the `Subscriptions` and `RetainedTopics`.
+
+## Implementation of the project
+
+In order to execute the project, you need to have installed the following tools:
+- CMake
+- C++ compiler
+- gtest
+
+### Build the project
+
+The project uses CMake as a build system. To build the project, you need to execute the following commands:
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
+
+### Run the project
+
+To run the project, in the build directory, you need to execute the following command:
+
+```bash
+./main
+```
+
+### Run the tests
+
+To run the tests, in the build directory, you need to execute the following command:
+
+```bash
+./Msgtest
+./BrokerTest
+./ClientTest
+./QueueTest
+./SimTest
+```
+
+## Project structure
+
+The project is divided into the following directories:
+- `include`: contains the header files of the project.
+- `src`: contains the source files of the project.
+- `test`: contains the test files of the project.
+- `build`: contains the build files of the project. This directory is created when you build the project.
+- `CMakeLists.txt`: contains the CMake configuration of the project.
+- `README.md`: contains the documentation of the project.
+- `LICENSE`: contains the license of the project.
+
+

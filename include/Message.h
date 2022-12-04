@@ -17,6 +17,8 @@ class Message
         Message(TypeM t) : type(t) {};
         TypeM getType() const;
         virtual Message *clone()const = 0; /// para evitar object splicing
+        virtual TopicName getTopic() const { return "Empty"; };
+        virtual TopicValue getValue() const { return "Empty"; };
         // virtual ~Message();
     protected:
 
@@ -82,10 +84,14 @@ class UnsubscribeMsg : public Message
 class PublishMsg : public Message
 {
     public:
+        /// @brief Constructor for PublishMsg
+        /// @param tn Topic name
+        /// @param tv Topic value
+        /// @param f Retain flag
         PublishMsg(TopicName tn,TopicValue tv, bool f=false);
         Message* clone() const {return new PublishMsg(this->topic,this->value,this->retain);};
-        TopicName getTopic() {return this->topic;};
-        TopicValue getValue() {return this->value;}
+        TopicName getTopic() const {return this->topic;};
+        TopicValue getValue() const {return this->value;}
         bool getRetain() {return this->retain;};
     protected:
 

@@ -5,7 +5,6 @@ Message::TypeM Message::getType() const
     return type;
 };
 
-
 ConnectMsg::ConnectMsg(string UserN,string Pass) :  Message(Message::TypeM::CONNECT)
 {
     //ctor
@@ -13,7 +12,6 @@ ConnectMsg::ConnectMsg(string UserN,string Pass) :  Message(Message::TypeM::CONN
     this->password=Pass;
     std::cout<<"Mensaje Connnect Creado"<<endl;
 }
-
 
 ConnAckMsg::ConnAckMsg(Status st) : Message(Message::TypeM::CONNACK),status(st)
 {
@@ -25,7 +23,6 @@ SubscribeMsg::SubscribeMsg(TopicName tn) : Message(Message::TypeM::SUBSCRIBE)
     std::cout<<"SubscribeMsg Created"<<endl;
 
 }
-
 
 UnsubscribeMsg::UnsubscribeMsg() : Message(Message::TypeM::UNSUBSCRIBE)
 {

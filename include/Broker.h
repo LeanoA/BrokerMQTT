@@ -145,7 +145,7 @@ public:
     void registerNewSubs(Subscription *s);
 
     /// @brief Para cada subscripcion que cumpla con el topico pedido
-    void forEach(PublishMsg *m, Client *cl);
+    void forEach(PublishMsg *m , Client *cl);
 
     // Get user
     string getUser() { return this->username; };
@@ -176,7 +176,6 @@ private:
     Broker &operator=(Broker const &) = delete; /// operador asignación privado
     static Broker *m_pInstance;
 
-    // void send2ClienteSub (Subscription* sb);
     void ifRT(Subscription *sb);
 
     string username = "root";

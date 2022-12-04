@@ -2,17 +2,11 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "../include/Broker.h"
+#include "../include/SimClient.h"
 
 using namespace std;
 using ::testing::_;
 using ::testing::Return;
-
-// class BrokerTestsClass : public ::testing::Test {
-// public:
-
-// protected:
-// 	Broker broker;
-// };
 
 class MockCOIF : public ClientOpsIF {
 	public:
@@ -20,8 +14,6 @@ class MockCOIF : public ClientOpsIF {
 	void recvMsg (const Message &){
     };
 };
-
-
 
 TEST(BrokerTest, CreateBroker) {
     Broker* SingletonBroker=Broker::getInstance();
@@ -38,23 +30,6 @@ TEST(ClienteOpsIF, CreateClientOpsIF) {
     ASSERT_TRUE(clientOpsIF!=NULL);
     delete clientOpsIF;
 }
-
-// TEST(BrokerTest, DeleteBroker) {
-//     Broker* SingletonBroker=Broker::getInstance();
-//     ASSERT_TRUE(SingletonBroker!=NULL);
-//     // Something is wrong with this testls
-//     ASSERT_TRUE(SingletonBroker->getPass()=="1234");
-//     ASSERT_TRUE(SingletonBroker->getUser()=="root");
-
-//     MockCOIF* clientOpsIF=new MockCOIF();
-//     BrokerOpsIF *pBroker;
-//     pBroker = SingletonBroker->registerClient(clientOpsIF);
-//     ASSERT_EQ(pBroker->name,"1");
-//     SingletonBroker->deleteInstance();
-//     // ASSERT_EQ(SingletonBroker,NULL);
-// }
-
-
 
 int main(int argc, char* argv[])
 {

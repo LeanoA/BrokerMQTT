@@ -48,3 +48,6 @@ target_link_libraries(QueueTest PRIVATE BrokerMQTT gtest gmock)
 
 add_executable(SimTest ${CMAKE_CURRENT_SOURCE_DIR}/test/sim_test.cpp)
 target_link_libraries(SimTest PRIVATE BrokerMQTT gtest gmock)
+
+add_executable(AuxTest ${CMAKE_CURRENT_SOURCE_DIR}/test/TestAux.cpp)
+target_link_libraries(AuxTest PRIVATE BrokerMQTT gtest gmock)

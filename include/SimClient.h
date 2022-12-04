@@ -18,18 +18,24 @@ class SimClient : public ClientOpsIF
         /// @brief Simula un cliente que se ejecuta en un therad.
         /// @param bkr Reference to Broker
         SimClient(Broker& bkr);
+        /// @brief Connect the SimClient
+        void connect();
+        /// @brief Disconnect the Simclient
+        void disconnect();
+
         /// @brief Start the thread. Move runSim to a diferent thread.
         void start();
         /// @brief Stop the thread
         void exit();
     protected:
         bool connack=false;
+        BrokerOpsIF *brops; // Broker interface
     private:
         std::thread simth; // Variable for thread execution
         Broker* broker; // Pointer to the broker
         /// @brief Run the thread
         virtual void runSim() = 0;
-        
+        // BrokerOpsIF *brops; // Broker interface
         ///..
 };
 
@@ -72,6 +78,7 @@ class SimSubscriber : public SimClient
 
     // private:
         void runSim();
+        void subscribe();
         /// @brief Topic Subscribed Vector
         vector<TopicName> topicSub;
 };

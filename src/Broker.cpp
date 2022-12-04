@@ -56,19 +56,22 @@ void Broker::forEach(PublishMsg *m, Client *cl)
     Subscription sub = Subscription{m->getTopic(), 0};
     
     std::unique_lock<std::mutex> lk(sbsmtx);
-    auto ret = subs_cache.equal_range(&sub);
+    auto range = subs_cache.equal_range(&sub);
 
-    if (ret.first != subs_cache.end())
-        std::cout << "Existen Subs" << endl;
-    else
-        std::cout << "No existen Subs" << endl;
-
-    for (auto it = ret.first; it != ret.second; ++it)
+    if (range.first != subs_cache.end())
     {
-        std::cout << "----> Iterando Subscriptores" << endl; ///(*it);
-        Client *cl = (*it)->owner;
-        cl->sendBr2Cl(*m);
+        std::cout << "BROKER --> Existen Subs" << endl;
+        for (auto it = range.first; it!= range.second; it++)
+        {
+            std::cout << "BROKER --> Iterando sobre los Subscriptores" << endl; ///(*it);
+            Client *client = (*it)->owner;
+            client->sendBr2Cl(*m);
+        }
     }
+    else
+        std::cout << "BROKER --> No existen Subs" << endl;
+
+
     lk.unlock();
 
     if (m->getRetain())
@@ -247,11 +250,11 @@ void Client::processConnect(ConnectMsg *m)
 /// @param msg Msg with topic
 void Client::processSubs(SubscribeMsg *msg)
 {
-    std::cout << "-->Proceso de subscripcion en el cliente simulado" << endl;
+    std::cout << "CLIENTE --> Registrando subscripcion en el cliente" << endl;
     // creation of a new msg to add a subs in client and broker
     Subscription *s = new Subscription{msg->getTopic(), this};
     this->subs.push_back(s);                   /// New sub in the client
-    std::cout << "-->Comenzando proceso de subscripcion en Broker" << endl;
+    std::cout << "CLIENTE --> Suscripto en el Broker" << endl;
     Subscription *s2 = new Subscription{msg->getTopic(), this}; 
     Broker::getInstance()->registerNewSubs(s2); /// New Sub in the Broker
     // SubAckMsg *msj = new SubAckMsg(SubAckMsg::Status::SUBSCRIPTION_OK);
@@ -259,13 +262,13 @@ void Client::processSubs(SubscribeMsg *msg)
 
 void Client::processPublish(PublishMsg *m)
 {
-    std::cout << "--> ** Procesar Mensaje a Publicar **" << endl;
+    std::cout << "CLIENTE --> Procesar Publicacion" << endl;
     Broker::getInstance()->forEach(m, this);
 }
 
 void Client::sendBr2Cl(const Message &m)
 {
-    std::cout << "-->>> Br al SimClient" << endl;
+    std::cout << "CLIENTE -->>> Enviar Msj desde el BrCl al SimClient" << endl;
     std::unique_lock<std::mutex> lk{this->cifmtx};
     this->cif->recvMsg(m);
     lk.unlock();

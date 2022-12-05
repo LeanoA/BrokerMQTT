@@ -59,12 +59,19 @@ void Broker::forEachSubs(PublishMsg *m, Client *cl)
 
     if (range.first != subs_cache.end())
     {
-        std::cout << "\t\tBROKER --> Subscriber finded" << endl;
+        size_t total = std::distance(range.first, range.second);
+        std::cout << "\t\tBROKER --> Subscriber finded: "<< total << endl;
+        size_t count = 0;
         for (auto it = range.first; it!= range.second; it++)
         {
-            std::cout << "\t\tBROKER --> Iterando sobre los Subscriptores" << endl; ///(*it);
+            count++;
+            std::cout << "\t\tBROKER --> Iteration num. "<< count <<" on Subscribers" << endl;
             Client *client = (*it)->owner;
-            client->sendBrokerCl2Client(*m);
+            if(client != cl)
+                client->sendBrokerCl2Client(*m);
+            else
+                std::cout << "\t\tBROKER --> Not send to the same client" << endl;
+
         }
     }
     else
@@ -105,7 +112,10 @@ void Broker::ifRT(Subscription *sb)
         PublishMsg m = PublishMsg((*it)->topic, (*it)->value);
         
         Client *client = sb->owner;
-        client->sendBrokerCl2Client(m);
+        if(client != cl)
+            client->sendBrokerCl2Client(m);
+        else
+            std::cout << "\t\tBROKER --> Not send to the same client" << endl;
     }
 
 

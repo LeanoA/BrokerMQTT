@@ -59,13 +59,13 @@ void SimPublisher::runSim()
     this->connect();
     if (this->connack)///(this->connack)
     { 
-        for(size_t i=1;i<15;i++)
+        for(size_t i=0;i<39;i=i+13)
         {
 
             PublishMsg m = PublishMsg( topic , std::to_string(25+i) , true);
             std::cout<<"\t\t\t\t CLIENT B --> Publish: "<<topic<<" "<<m.getValue() <<endl;
             brops->sendMsg(m); ///PUBLISH
-            std::this_thread::sleep_for (std::chrono::milliseconds(2000));
+            std::this_thread::sleep_for (std::chrono::seconds(5));
         };
     };
     this->disconnect();
@@ -95,8 +95,8 @@ void SimPublisher::recvMsg(const Message &m)
 //------------------------------------------------
 
 
-SimSubscriber::SimSubscriber(Broker &bkr,vector <TopicName> &TN) :
-    SimClient(bkr), topicSub{TN}{};
+SimSubscriber::SimSubscriber(Broker &bkr,vector <TopicName> &TN, TopicName topNam) :
+    SimClient(bkr), topicSub{TN}, topic{topNam}{};
 
 void SimSubscriber::subscribe()
 {
@@ -115,6 +115,16 @@ void SimSubscriber::runSim()
     if (this->connack)
     {
         this->subscribe();
+
+        for(size_t i=0;i<4;i++)
+        {
+
+            PublishMsg m = PublishMsg( topic , "25 C" , true);
+            std::cout<<"\tCLIENT A --> Publish: "<<topic<<" "<<m.getValue() <<endl;
+            brops->sendMsg(m); ///PUBLISH
+            std::this_thread::sleep_for (std::chrono::seconds(5));
+        };
+
         std::this_thread::sleep_for (std::chrono::seconds(20)); ///Tiempo que se queda esperando Mensajes antes de desconectarse
         this->disconnect();
     };   
@@ -140,7 +150,7 @@ void SimSubscriber::recvMsg(const Message &m)
         case Message::TypeM::PUBLISH:
         {
             const PublishMsg* pm = dynamic_cast <const PublishMsg* const> (&m);
-            std::cout<<"\tCLIENT A : Publish recieved - Topico: "<< pm->getTopic() << " Value: "<< pm->getValue() <<endl; /// no me deja acceder a pm como const      
+            std::cout<<"\tCLIENT A --> Publish receive - Topic: "<< pm->getTopic() << " Value: "<< pm->getValue() <<endl; /// no me deja acceder a pm como const      
             break;
         }
         default:

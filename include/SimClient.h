@@ -70,7 +70,7 @@ class SimSubscriber : public SimClient
         /// @brief Constructor de SimSubscriber
         /// @param bkr Broker
         /// @param TN Vector of Topics to subscribe by reference
-        SimSubscriber(Broker &bkr,vector <TopicName> &TN);
+        SimSubscriber(Broker &bkr,vector <TopicName> &TN, TopicName topNam="topic1");
         /// @brief Message received from the broker
         void recvMsg(const Message &);
         ~SimSubscriber(){this->exit();}
@@ -81,6 +81,7 @@ class SimSubscriber : public SimClient
         void subscribe();
         /// @brief Topic Subscribed Vector
         vector<TopicName> topicSub;
+        TopicName topic;    ///El topico que va a Publicar
 };
 
 

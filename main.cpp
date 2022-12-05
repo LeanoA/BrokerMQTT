@@ -31,17 +31,17 @@ int main()
     std::this_thread::sleep_for (std::chrono::seconds(2));
 
 
-    SimSubscriber* ss2 = new SimSubscriber(*SingletonBroker,tn);
+    SimSubscriber* ss2 = new SimSubscriber(*SingletonBroker,tn,"Temperatura");
 
     ss2->start();
 
-    SimSubscriber* ss3 = new SimSubscriber(*SingletonBroker,tn);
+    // SimSubscriber* ss3 = new SimSubscriber(*SingletonBroker,tn);
 
-    ss3->start();
+    // ss3->start();
 
     sp1->exit();
     ss2->exit();
-    ss3->exit();
+    // ss3->exit();
 
     return 0;
 }

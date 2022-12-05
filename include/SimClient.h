@@ -22,7 +22,6 @@ class SimClient : public ClientOpsIF
         void connect();
         /// @brief Disconnect the Simclient
         void disconnect();
-
         /// @brief Start the thread. Move runSim to a diferent thread.
         void start();
         /// @brief Stop the thread
@@ -36,7 +35,6 @@ class SimClient : public ClientOpsIF
         /// @brief Run the thread
         virtual void runSim() = 0;
         // BrokerOpsIF *brops; // Broker interface
-        ///..
 };
 
 //--------------------------------------
@@ -53,7 +51,7 @@ class SimPublisher : public SimClient
         // void runSim();
     // protected:
 
-    // private:
+    private:
         void runSim();
         TopicName topic;    ///El topico que va a Publicar
 
@@ -76,7 +74,7 @@ class SimSubscriber : public SimClient
         ~SimSubscriber(){this->exit();}
     // protected:
 
-    // private:
+    private:
         void runSim();
         void subscribe();
         /// @brief Topic Subscribed Vector

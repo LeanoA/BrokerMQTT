@@ -17,14 +17,14 @@ Broker *Broker::getInstance()
     if (!m_pInstance)
     { 
         m_pInstance = new Broker;
-        std::cout << "\t\tBROKER --> Instance created "<< m_pInstance << std::endl;
+        std::cout << "\t\t\tBROKER --> Instance created "<< m_pInstance << std::endl;
     };
     return m_pInstance; /// al momento de crear, se almacena
 };
 
 void Broker::deleteInstance()
 {
-    std::cout << "\t\tBROKER --> Delete Instance" << endl;
+    std::cout << "\t\t\tBROKER --> Delete Instance" << endl;
     delete m_pInstance;
     m_pInstance = NULL;
 };
@@ -32,7 +32,7 @@ void Broker::deleteInstance()
 /// @brief Create a new client with SimPublish/SimSub who derivate from CIientOpsfIF.
 BrokerOpsIF *Broker::registerClient(ClientOpsIF *cifops)
 {
-    std::cout << "\t\tBROKER --> Register Client: " << cifops << endl;
+    std::cout << "\t\t\tBROKER --> Register Client: " << cifops << endl;
     Client *cl = new Client(cifops);
     std::unique_lock<std::mutex> lk{clmtx};
     this->clients.push_back(cl); /// New client is added to the list of clients
@@ -42,7 +42,7 @@ BrokerOpsIF *Broker::registerClient(ClientOpsIF *cifops)
 
 void Broker::registerNewSubs(Subscription *s)
 {
-    std::cout << "\t\tBROKER --> Register new subscription" << endl;
+    std::cout << "\t\t\tBROKER --> Register new subscription" << endl;
     std::unique_lock<std::mutex> lk{sbsmtx};
     this->subs_cache.insert(s);
     lk.unlock();
@@ -60,22 +60,22 @@ void Broker::forEachSubs(PublishMsg *m, Client *cl)
     if (range.first != subs_cache.end())
     {
         size_t total = std::distance(range.first, range.second);
-        std::cout << "\t\tBROKER --> Subscriber finded: "<< total << endl;
+        std::cout << "\t\t\tBROKER --> Number of Subs for this topic: "<< total << endl;
         size_t count = 0;
         for (auto it = range.first; it!= range.second; it++)
         {
             count++;
-            std::cout << "\t\tBROKER --> Iteration num. "<< count <<" on Subscribers" << endl;
+            std::cout << "\t\t\tBROKER --> Iteration "<< count <<" on Subscribers" << endl;
             Client *client = (*it)->owner;
             if(client != cl)
                 client->sendBrokerCl2Client(*m);
             else
-                std::cout << "\t\tBROKER --> Not send to the same client" << endl;
+                std::cout << "\t\t\tBROKER --> Not send to the same client" << endl;
 
         }
     }
     else
-        std::cout << "\t\tBROKER --> No existen Subs" << endl;
+        std::cout << "\t\t\tBROKER --> No Subscribers for this topic" << endl;
 
 
     lk.unlock();
@@ -107,7 +107,7 @@ void Broker::ifRT(Subscription *sb)
 
     for (auto it = ret.first; it != ret.second; ++it)
     {
-        std::cout << "\t\tBROKER --> Sending RetainedTopic " << endl; 
+        std::cout << "\t\t\tBROKER --> Sending RetainedTopic " << endl; 
 
         PublishMsg m = PublishMsg((*it)->topic, (*it)->value);
         
@@ -115,7 +115,7 @@ void Broker::ifRT(Subscription *sb)
         if(client != cl)
             client->sendBrokerCl2Client(m);
         else
-            std::cout << "\t\tBROKER --> Not send to the same client" << endl;
+            std::cout << "\t\t\tBROKER --> Not send to the same client" << endl;
     }
 
 
@@ -123,7 +123,7 @@ void Broker::ifRT(Subscription *sb)
 
 void Broker::delSub(Subscription *s)
 {
-    std::cout << "\t\tBROKER --> Delete Subscriptions topic: " << s->topic << " Client Owner: " << s->owner << endl;
+    std::cout << "\t\t\tBROKER --> Delete Subscriptions topic: " << s->topic << " Client Owner: " << s->owner << endl;
     std::unique_lock<std::mutex> lk{sbsmtx};
     auto it = this->subs_cache.equal_range(s);
     this->subs_cache.erase(it.first, it.second);
@@ -132,7 +132,7 @@ void Broker::delSub(Subscription *s)
 
 void Broker::deleteRT(RetainedTopic *rt)
 {
-    std::cout << "\t\tBROKER --> Delete Retained Topic: "<< rt->topic<<" Client Owner: "<< rt->owner << endl;
+    std::cout << "\t\t\tBROKER --> Delete Retained Topic: "<< rt->topic<<" Client Owner: "<< rt->owner << endl;
     std::unique_lock<std::mutex> lk(rtmtx);
     auto ret = this->rt_cache.equal_range(rt);
     this->rt_cache.erase(ret.first, ret.second);
@@ -154,7 +154,7 @@ Client::Client(ClientOpsIF *cifops) : cif{cifops}
 
 void Client::sendMsg(const Message &m)
 {
-    std::cout << "\t\tBROKER/CLIENT --> New Message recieved" << endl;
+    std::cout << "\t\t\tBROKER/CLIENT --> New message recieved" << endl;
     /// Agregar el dato como mensaje en la cola
     std::unique_lock<std::mutex> lck(this->m_mutex);
     this->m_queue.push(m.clone());
@@ -167,7 +167,7 @@ bool Client::CreateThread()
     if (!m_thread)
     {
         this->m_thread = new std::thread(&Client::Process, this);
-        std::cout << "\t\tBROKER/CLIENT --> Thread for Client " << this << " created" << endl;
+        std::cout << "\t\t\tBROKER/CLIENT --> Thread for Client " << this << " created" << endl;
     }
     return true;
 };
@@ -242,13 +242,13 @@ void Client::processConnect(ConnectMsg *m)
 {
     if ((m->getUser() == Broker::getInstance()->getUser()) && ((m->getPass() == Broker::getInstance()->getPass())))
     {
-        std::cout << "\t\tBROKER/CLIENT --> CONNECTION OK" << endl;
+        std::cout << "\t\t\tBROKER/CLIENT --> CONNECTION OK" << endl;
         ConnAckMsg *msj = new ConnAckMsg(ConnAckMsg::Status::CONNECTION_OK);
         this->sendBrokerCl2Client(*msj);
     }
     else
     {
-        std::cout << "\t\tBROKER/CLIENT --> LOGIN ERROR" << endl;
+        std::cout << "\t\t\tBROKER/CLIENT --> LOGIN ERROR" << endl;
         ConnAckMsg *msj = new ConnAckMsg(ConnAckMsg::Status::LOGIN_ERROR);
         this->sendBrokerCl2Client(*msj);
     }
@@ -258,7 +258,7 @@ void Client::processConnect(ConnectMsg *m)
 /// @param msg Msg with topic
 void Client::processSubs(SubscribeMsg *msg)
 {
-    std::cout << "\t\tBROKER/CLIENT --> Register Subscription : "<< msg->getTopic() <<" Owner: "<< this << endl;
+    std::cout << "\t\t\tBROKER/CLIENT --> Register Subscription : "<< msg->getTopic() <<" Owner: "<< this << endl;
     // creation of a new msg to add a subs in client and broker
     Subscription *s = new Subscription{msg->getTopic(), this};
     this->subs.push_back(s);                   /// New sub in the client
@@ -271,13 +271,13 @@ void Client::processSubs(SubscribeMsg *msg)
 
 void Client::processPublish(PublishMsg *m)
 {
-    std::cout << "\t\tBROKER/CLIENT --> Procesar Publicacion" << endl;
+    std::cout << "\t\t\tBROKER/CLIENT --> Process Publish Msg" << endl;
     Broker::getInstance()->forEachSubs(m, this);
 }
 
 void Client::sendBrokerCl2Client(const Message &m)
 {
-    std::cout << "\t\tBROKER/CLIENT --> Send Msg from Broker Client to SimClient" << endl;
+    std::cout << "\t\t\tBROKER/CLIENT --> Send msg from Broker/Client to SimClient" << endl;
     std::unique_lock<std::mutex> lk{this->cifmtx};
     this->cif->recvMsg(m);
     lk.unlock();
@@ -285,7 +285,7 @@ void Client::sendBrokerCl2Client(const Message &m)
 
 void Client::destroyCl(Client *cl)
 {
-    std::cout << "\t\tBROKER/CLIENT --> Destroy Client" << endl;
+    std::cout << "\t\t\tBROKER/CLIENT --> Destroy Client" << endl;
     Broker::getInstance()->deleteCl(cl);
     delete cl;
 };
@@ -293,7 +293,7 @@ void Client::destroyCl(Client *cl)
 void Client::processDisconnect()
 {
     Message *msg;
-    std::cout << "\t\tBROKER/CLIENT --> DISCONNECTING client: " << this->cif << std::endl;
+    std::cout << "\t\t\tBROKER/CLIENT --> DISCONNECTING client: " << this->cif << std::endl;
 
     std::unique_lock<std::mutex> lk(m_mutex);
     while (!m_queue.empty())
@@ -307,13 +307,13 @@ void Client::processDisconnect()
     for (auto it = this->subs.begin(); it != this->subs.end(); ++it)
         Broker::getInstance()->delSub(*it);
 
-    std::cout << "\t\tBROKER/CLIENT --> Delete Subscription" << endl;
+    std::cout << "\t\t\tBROKER/CLIENT --> Delete Subscription" << endl;
 
     /// Si hay topico retenido
     for (auto it = this->topics.begin(); it != this->topics.end(); ++it)
         Broker::getInstance()->deleteRT(*it);
     
-    std::cout << "\t\tBROKER/CLIENT --> Delete RT" << endl;
+    std::cout << "\t\t\tBROKER/CLIENT --> Delete RT" << endl;
 
     std::thread dt(&Client::destroyCl, this);
     dt.detach();

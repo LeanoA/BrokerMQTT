@@ -37,8 +37,9 @@ TEST(SimSubscriber, SimSubscriberRecibeMsjFromBroker){
     PublishMsg pm2("Presion", "2atm",true);
     SingletonBroker->forEachSubs(&pm, 0);
 
-    ss1->connect();
-    ss1->subscribe();
+    ss1->start();
+    // ss1->connect();
+    // ss1->subscribe();
 
 
     // for(size_t i=1;i<15;i++)

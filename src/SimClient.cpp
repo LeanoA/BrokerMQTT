@@ -59,13 +59,17 @@ void SimPublisher::runSim()
     this->connect();
     if (this->connack)///(this->connack)
     { 
-        for(size_t i=0;i<39;i=i+13)
+        for(size_t i=0;i<10;i++)
         {
+            // random number between 25 and 38
+            size_t random = 25 + (rand() % (38 - 25 + 1));
+            // Value to publish in string format
+            std::string sValue =  std::to_string(random) + "\u2103";
 
-            PublishMsg m = PublishMsg( topic , std::to_string(25+i) , true);
-            std::cout<<"\t\t\t\t CLIENT B --> Publish: "<<topic<<" "<<m.getValue() <<endl;
+            PublishMsg m = PublishMsg( topic , sValue , true);
+            std::cout<<"\t\tCLIENT B --> Publish: "<<topic<<" "<<m.getValue() <<endl;
             brops->sendMsg(m); ///PUBLISH
-            std::this_thread::sleep_for (std::chrono::seconds(5));
+            std::this_thread::sleep_for (std::chrono::seconds(3));
         };
     };
     this->disconnect();
@@ -118,14 +122,14 @@ void SimSubscriber::runSim()
 
         for(size_t i=0;i<4;i++)
         {
-
-            PublishMsg m = PublishMsg( topic , "25 C" , true);
+            // value 25 grad celsius
+            PublishMsg m = PublishMsg( topic , "25\u2103" , false);
             std::cout<<"\tCLIENT A --> Publish: "<<topic<<" "<<m.getValue() <<endl;
             brops->sendMsg(m); ///PUBLISH
             std::this_thread::sleep_for (std::chrono::seconds(5));
         };
 
-        std::this_thread::sleep_for (std::chrono::seconds(20)); ///Tiempo que se queda esperando Mensajes antes de desconectarse
+        std::this_thread::sleep_for (std::chrono::seconds(1)); ///Tiempo que se queda esperando Mensajes antes de desconectarse
         this->disconnect();
     };   
 };
@@ -150,7 +154,7 @@ void SimSubscriber::recvMsg(const Message &m)
         case Message::TypeM::PUBLISH:
         {
             const PublishMsg* pm = dynamic_cast <const PublishMsg* const> (&m);
-            std::cout<<"\tCLIENT A --> Publish receive - Topic: "<< pm->getTopic() << " Value: "<< pm->getValue() <<endl; /// no me deja acceder a pm como const      
+            std::cout<<"\tCLIENT A --> Publish receive: "<< pm->getTopic() << " "<< pm->getValue() <<endl;      
             break;
         }
         default:

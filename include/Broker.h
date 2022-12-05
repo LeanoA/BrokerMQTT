@@ -96,7 +96,7 @@ struct Subscription
 /// \brief Structure for retained topics
 /// \param topic Topic name
 /// \param value Topic value
-/// \param *owner Client that publish the topic
+/// \param owner *Client who publish the topic
 struct RetainedTopic{
     TopicName topic;
     TopicValue value;

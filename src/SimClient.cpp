@@ -51,7 +51,7 @@ void SimClient::exit()
 
 
 //------------------------------------------------
-//------------------SimPublisher------------------
+//------------------SIM CLIENT B------------------
 
 void SimPublisher::runSim()
 {
@@ -62,7 +62,7 @@ void SimPublisher::runSim()
         for(size_t i=1;i<15;i++)
         {
 
-            PublishMsg m = PublishMsg( topic , std::to_string(25+i) , false);
+            PublishMsg m = PublishMsg( topic , std::to_string(25+i) , true);
             std::cout<<"\t\t\t\t CLIENT B --> Publish: "<<topic<<" "<<m.getValue() <<endl;
             brops->sendMsg(m); ///PUBLISH
             std::this_thread::sleep_for (std::chrono::milliseconds(2000));

@@ -20,12 +20,16 @@ int main()
 
 
     ///Espero antes de crear el publicador
-    std::this_thread::sleep_for (std::chrono::seconds(5));
+    std::this_thread::sleep_for (std::chrono::seconds(2));
 
     ///Nuevo Publicador
 
     SimPublisher* sp1=new SimPublisher(*SingletonBroker,tn[0]);
     sp1->start();
+
+    ///Espero antes de crear el Subscriptor
+    std::this_thread::sleep_for (std::chrono::seconds(2));
+
 
     SimSubscriber* ss2 = new SimSubscriber(*SingletonBroker,tn);
 

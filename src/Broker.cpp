@@ -42,7 +42,7 @@ BrokerOpsIF *Broker::registerClient(ClientOpsIF *cifops)
 
 void Broker::registerNewSubs(Subscription *s)
 {
-    std::cout << "\t\tBROKER --> Register new subs" << endl;
+    std::cout << "\t\tBROKER --> Register new subscription" << endl;
     std::unique_lock<std::mutex> lk{sbsmtx};
     this->subs_cache.insert(s);
     lk.unlock();
@@ -73,40 +73,42 @@ void Broker::forEachSubs(PublishMsg *m, Client *cl)
 
     lk.unlock();
 
+    // if the msg has to be retained, store it
     if (m->getRetain())
     {
-
         RetainedTopic *RT = new RetainedTopic{m->getTopic(), m->getValue(), cl};
-
         std::unique_lock<std::mutex> lk(this->rtmtx);
-        this->rt_cache.erase(this->rt_cache.find(RT)); /// Si existe, borrarlo
+        // Find RT in the cache to erase it and insert the new one
+        auto ret = this->rt_cache.equal_range(RT);
+        if (ret.first != this->rt_cache.end())
+            this->rt_cache.erase(ret.first); // erase the old one
         this->rt_cache.insert(RT);
         lk.unlock();
     }
 }
 
 /// @brief Manda Mensaje a todos los subscriptores nuevos si hay retenidos
-/// @param sb Subscripcion*
+/// @param sb *Subscripcion
 void Broker::ifRT(Subscription *sb)
 {
-    PublishMsg *m;
     Client *cl;
-    RetainedTopic *RT = new RetainedTopic{sb->topic, "0", sb->owner};
+    RetainedTopic RT = RetainedTopic{sb->topic, "0", 0};
 
     std::unique_lock<std::mutex> lk(this->rtmtx);
-    auto ret = this->rt_cache.equal_range(RT);
+    auto ret = this->rt_cache.equal_range( &RT );
+    lk.unlock();
 
     for (auto it = ret.first; it != ret.second; ++it)
     {
         std::cout << "\t\tBROKER --> Sending RetainedTopic " << endl; 
 
-        m = new PublishMsg((*it)->topic, (*it)->value);
-        cl = (*it)->owner;
-        cl->sendBrokerCl2Client(*m);
-        break;
+        PublishMsg m = PublishMsg((*it)->topic, (*it)->value);
+        
+        Client *client = sb->owner;
+        client->sendBrokerCl2Client(m);
     }
 
-    lk.unlock();
+
 }
 
 void Broker::delSub(Subscription *s)

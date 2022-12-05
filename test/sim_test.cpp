@@ -14,34 +14,20 @@ using ::testing::Return;
 TEST(SimPublisher, SimSubscriberInstantation){
     Broker* SingletonBroker=Broker::getInstance();
     std::vector<TopicName> tn;
-    tn.push_back("Temperatura");
-    SimSubscriber* sp1=new SimSubscriber(*SingletonBroker,tn);
-    sp1->start();
-    // sp1->runSim();
+    tn.push_back("Humedad");
+    SimSubscriber* ss1=new SimSubscriber(*SingletonBroker,tn);
+    ss1->start();
     SimPublisher* sp2=new SimPublisher(*SingletonBroker,"Humedad");
     sp2->start();
     // sp2->runSim();
     // ASSERT_TRUE(sp2!=NULL);
-    std::this_thread::sleep_for (std::chrono::seconds(40));
-    std::cout<<"Finalizando la prueba"<<std::endl;
+    std::this_thread::sleep_for (std::chrono::seconds(2));
     sp2->exit();
-    sp1->exit();
+    ss1->exit();
     std::cout<<"Fin de la prueba"<<std::endl;
-    ASSERT_TRUE(sp1!=NULL);
-
+    ASSERT_TRUE(ss1!=NULL);
+    ASSERT_TRUE(sp2!=NULL);
 }
-TEST(SimSubscriber, SimSubscriberInstantation){
-    Broker* SingletonBroker=Broker::getInstance();
-    std::vector<TopicName> tn;
-    tn.push_back("Presion");
-    SimSubscriber* sp1=new SimSubscriber(*SingletonBroker,tn);
-    sp1->start();
-
-    sp1->exit();
-    ASSERT_TRUE(true);
-}
-
-
 
 
 

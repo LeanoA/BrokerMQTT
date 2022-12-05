@@ -2,34 +2,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "../include/Message.h"
-#include "../include/Queue.h"
 #include "../include/SafeQueue.h"
-
-TEST(QueueTest, Instantiation) {
-    Queue<int> q;
-    ASSERT_TRUE(q.Cantidad()==0);
-}
-
-TEST(QueueTest, Put) {
-    Queue<Message> q;
-    TopicName tN = "topic";
-    SubscribeMsg msg(tN);
-    q.put(msg);
-    ASSERT_TRUE(q.Cantidad()==1);
-}
-
-TEST(QueueTest, Get) {
-    Queue<Message> q;
-    TopicName tN = "topic";
-    SubscribeMsg msg(tN);
-    q.put(msg);
-    EXPECT_EQ(q.Cantidad(),1);
-    Message *m;
-    q.get(m);
-    EXPECT_EQ(q.Cantidad(),0);
-    // EXPECT_EQ(dynamic_cast<SubscribeMsg *>(m)->getType(), Message::TypeM::SUBSCRIBE);
-    // EXPECT_EQ(dynamic_cast<SubscribeMsg *>(m)->getTopic(),"topic");
-}
 
 TEST(SafeQueueTest,Instantiation){
     SafeQueue<int> q;

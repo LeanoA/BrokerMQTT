@@ -49,8 +49,8 @@ class Client : public BrokerOpsIF
         Client(ClientOpsIF *cifops);
         /// @brief Mensaje Recibido en el cliente simulado en el broker
         void sendMsg(const Message &m); 
-        /// @brief Send Msg to Sim Client?
-        void sendBr2Cl(const Message &m);
+        /// @brief Send Msg to Sim Client
+        void sendBrokerCl2Client(const Message &m);
         static void destroyCl (Client *cl);
 
     protected:
@@ -144,8 +144,8 @@ public:
     /// @param s Subscription msg
     void registerNewSubs(Subscription *s);
 
-    /// @brief Para cada subscripcion que cumpla con el topico pedido
-    void forEach(PublishMsg *m , Client *cl);
+    /// @brief Look for a topic subscription and send the publish msg to the client
+    void forEachSubs(PublishMsg *m , Client *cl);
 
     // Get user
     string getUser() { return this->username; };

@@ -25,8 +25,6 @@ include/Message.h
 src/Message.cpp
 include/SimClient.h
 src/SimClient.cpp
-include/Queue.h
-src/Queue.cpp
 include/SafeQueue.h
 )
 
@@ -36,9 +34,8 @@ include/SafeQueue.h
 add_executable(main ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 target_link_libraries(main PRIVATE BrokerMQTT)
 
-
-add_executable(Msgtest ${CMAKE_CURRENT_SOURCE_DIR}/test/Message_test.cpp)
-target_link_libraries(Msgtest PRIVATE BrokerMQTT gtest)
+add_executable(MessageTest ${CMAKE_CURRENT_SOURCE_DIR}/test/Message_test.cpp)
+target_link_libraries(MessageTest PRIVATE BrokerMQTT gtest)
 
 add_executable(BrokerTest ${CMAKE_CURRENT_SOURCE_DIR}/test/broker_test.cpp)
 target_link_libraries(BrokerTest PRIVATE BrokerMQTT gtest gmock)
@@ -49,5 +46,5 @@ target_link_libraries(QueueTest PRIVATE BrokerMQTT gtest gmock)
 add_executable(SimTest ${CMAKE_CURRENT_SOURCE_DIR}/test/sim_test.cpp)
 target_link_libraries(SimTest PRIVATE BrokerMQTT gtest gmock)
 
-add_executable(AuxTest ${CMAKE_CURRENT_SOURCE_DIR}/test/TestAux.cpp)
-target_link_libraries(AuxTest PRIVATE BrokerMQTT gtest gmock)
+add_executable(SimSubscriberTest ${CMAKE_CURRENT_SOURCE_DIR}/test/sim_subscriber_test.cpp)
+target_link_libraries(SimSubscriberTest PRIVATE BrokerMQTT gtest gmock)

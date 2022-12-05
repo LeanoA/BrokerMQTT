@@ -3,7 +3,7 @@
 SimClient::SimClient(Broker &bkr)
 {
     this->broker = &bkr;
-    printf("Broker is at address: %p\n", this->broker);
+    cout<<"SIM CLIENT --> Created with Broker address:"<< this->broker <<endl;
 }
 
 void SimClient::start() 
@@ -11,32 +11,32 @@ void SimClient::start()
     if (!this->simth.joinable())
     {
         simth=move(std::thread(&SimClient::runSim,this));
-        cout<<"SIM CLIENT --> Thred for a client created \n " <<endl;
+        cout<<"SIM CLIENT --> Thread for a client created" <<endl;
     }
 };
 
 void SimClient::connect()
 {
     brops = this->broker->registerClient(this);
-    cout<<"\tSIM CLIENT --> Client registered in the broker \n " <<endl;
+    cout<<"SIM CLIENT --> Trying to connect to broker" <<endl;
     ///El cliente manda un mensaje de conexión al broker
     brops->sendMsg(ConnectMsg{"root","1234"});  ///CONNNECT
 
     ///esperar por CONNACK sin errores a traves de rcvMsg en el client        
-    std::cout<<"\tSIM CLIENT --> waiting connack..."<<endl;
     std::this_thread::sleep_for (std::chrono::seconds(1));
 
     if (this->connack)///(this->connack)
     {
-        std::cout<<"\tSIM CLIENT --> CONNACK OK "<<endl;        
+        std::cout<<"SIM CLIENT --> CONNACK OK "<<endl;        
     }
 
 };
 
 void SimClient::disconnect()
 {
+    std::cout<<"SIM CLIENT --> Disconnecting client "<< this <<endl;  
     brops->sendMsg( DisconnectMsg() );         ///DISCONNECT
-    std::cout<<"\tSIM CLIENT --> Disconnect "<<endl;        
+      
 };
 
 void SimClient::exit()
@@ -46,7 +46,7 @@ void SimClient::exit()
         return;
     */   
     simth.join(); 
-    cout<<"Sim Thread terminado\n"<<endl;
+    cout<<"SIM CLIENT --> Sim Thread terminado\n"<<endl;
 }
 
 
@@ -55,19 +55,17 @@ void SimClient::exit()
 
 void SimPublisher::runSim()
 {
+
     this->connect();
-    
     if (this->connack)///(this->connack)
     { 
-        for(size_t i=1;i<20;i++)
+        for(size_t i=1;i<15;i++)
         {
-            // Publicar un mensaje de prueba
-            std::cout<<"<< i = "<<i <<endl;
-            PublishMsg m = PublishMsg( topic , std::to_string(25+i) , false);
 
-            std::cout<<"\t\tSIM CLIENT --> Enviando Publicacion al Broker topico: "<<topic<<endl;
+            PublishMsg m = PublishMsg( topic , std::to_string(25+i) , false);
+            std::cout<<"\t\t\t\t CLIENT B --> Publish: "<<topic<<" "<<m.getValue() <<endl;
             brops->sendMsg(m); ///PUBLISH
-            std::this_thread::sleep_for (std::chrono::milliseconds(4000));
+            std::this_thread::sleep_for (std::chrono::milliseconds(2000));
         };
     };
     this->disconnect();
@@ -106,7 +104,7 @@ void SimSubscriber::subscribe()
     {
         SubscribeMsg m = SubscribeMsg(t);
         brops->sendMsg(m); ///SUBSCRIBE
-        std::cout<<"\tSIM CLIENT --> Enviando Subscribe al Broker"<<endl;
+        std::cout<<"\tCLIENT A  --> Enviando Subscribe al Broker"<<endl;
         std::this_thread::sleep_for (std::chrono::seconds(1));
     }
 };
@@ -135,14 +133,14 @@ void SimSubscriber::recvMsg(const Message &m)
                 if(mcm->getStatus() == ConnAckMsg::Status::CONNECTION_OK)
                     {
                     connack=true;
-                    std::cout<<"\t\tSIM SUBSCRIBER --> CONNACK OK"<<endl;
+                    std::cout<<"\tCLIENT A --> CONNACK OK"<<endl;
                     }
                 break;
             }
         case Message::TypeM::PUBLISH:
         {
             const PublishMsg* pm = dynamic_cast <const PublishMsg* const> (&m);
-            std::cout<<"\t\tSIM SUBSCRIBER: Recibida una publicacion subscrita - Topico: "<< pm->getTopic() << "Value: "<< pm->getValue() <<endl; /// no me deja acceder a pm como const      
+            std::cout<<"\tCLIENT A : Publish recieved - Topico: "<< pm->getTopic() << " Value: "<< pm->getValue() <<endl; /// no me deja acceder a pm como const      
             break;
         }
         default:

@@ -55,6 +55,13 @@ public:
         return q.size();
     }
 
+    // Return true if queue is empty
+    bool empty(void)
+    {
+        std::lock_guard<std::mutex> lock(m);
+        return q.empty();
+    }
+
 private:
     std::queue<T> q;
     mutable std::mutex m;

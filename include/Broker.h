@@ -2,6 +2,7 @@
 #define BROKER_H
 
 #include "Message.h"
+#include "SafeQueue.h"
 
 #include <list>
 #include <set>
@@ -68,9 +69,7 @@ private:
     std::mutex cifmtx;                /*Client interface mutex */
     std::list<Subscription *> subs;   // List of pointer of Client Subscriptions. Each client process its own subs.
     std::set<RetainedTopic *> topics; // Retained topic
-    std::queue<Message *> m_queue;    // Message to process queue
-    std::mutex m_mutex;               // Mutex for msg (m_queue)
-    std::condition_variable m_cv;     // Condition variable to msg
+    SafeQueue<Message *> m_queue;     // Message to process queue
 
     /// Thread Created to process each client
     bool CreateThread();

@@ -156,10 +156,7 @@ void Client::sendMsg(const Message &m)
 {
     std::cout << "\t\t\tBROKER/CLIENT --> New message recieved" << endl;
     /// Agregar el dato como mensaje en la cola
-    std::unique_lock<std::mutex> lck(this->m_mutex);
-    this->m_queue.push(m.clone());
-    lck.unlock();
-    this->m_cv.notify_one();
+    this->m_queue.enqueue(m.clone());
 }
 
 bool Client::CreateThread()
@@ -178,22 +175,12 @@ void Client::Process()
     bool b = true;
     while (b)
     {
-        Message *msg;
         /// slow consumption
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         /// wait for a msg
-        std::unique_lock<std::mutex> lk(m_mutex);
-
-        while (m_queue.empty())
-            m_cv.wait(lk);
-
-        if (m_queue.empty())
-            continue;
-
-        msg = m_queue.front(); // Oldest msg
-        m_queue.pop(); // Remove oldest msg
-        lk.unlock();
+        Message *msg = m_queue.dequeue(); // Oldest msg
         b = this->processMsg(msg);
+
     };
 };
 
@@ -295,21 +282,19 @@ void Client::processDisconnect()
     Message *msg;
     std::cout << "\t\t\tBROKER/CLIENT --> DISCONNECTING client: " << this->cif << std::endl;
 
-    std::unique_lock<std::mutex> lk(m_mutex);
+    // Clear the queue msgs
     while (!m_queue.empty())
     {
-        msg = m_queue.front();
-        m_queue.pop();
+        msg = m_queue.dequeue();
     };
-    lk.unlock();
 
-    /// Recorro las subscripciones y las borro
+    /// Clear the subscriptions
     for (auto it = this->subs.begin(); it != this->subs.end(); ++it)
         Broker::getInstance()->delSub(*it);
 
     std::cout << "\t\t\tBROKER/CLIENT --> Delete Subscription" << endl;
 
-    /// Si hay topico retenido
+    /// Clear the topics retained
     for (auto it = this->topics.begin(); it != this->topics.end(); ++it)
         Broker::getInstance()->deleteRT(*it);
     

@@ -99,7 +99,6 @@ class PublishMsg : public Message
         TopicName topic;
         TopicValue value;
         bool retain;
-        //...
 };
 
 class DisconnectMsg : public Message

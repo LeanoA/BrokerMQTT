@@ -5,87 +5,94 @@
 
 #include <list>
 #include <set>
-#include <mutex> ///sdt:mutex,std::unique_lock
-#include <thread>         // std::thread
-#include <queue>          /// std::queue
-#include <condition_variable>   ///std::condition_variable
-#include <iostream>       /// std::cout
+#include <mutex>              ///sdt:mutex,std::unique_lock
+#include <thread>             // std::thread
+#include <queue>              /// std::queue
+#include <condition_variable> ///std::condition_variable
+#include <iostream>           /// std::cout
 
-
-/** \brief Estructura para representar los conceptos de subscripciones
- * hechas por los clientes y los t�picos publicados con el
- * requerimiento de ser retenidos para su inmediata utilizaci�n.
- */
+/* Struct to represent the concepts of subscriptions made 
+ * by the clients and the topics published with the 
+ * requirement to be retained for immediate use.
+*/
 struct Subscription;
 struct RetainedTopic;
 struct CompareTopic;
 struct CompareRT;
 class Broker;
 
-
-/// @brief Interface implementada por el Broker para enviarle mensajes al Cliente
-class BrokerOpsIF{
+/// @brief Interface implemented in the Broker, so that, SimClient sends messages
+/// to the client representation in the broker side
+class BrokerOpsIF
+{
 public:
-    BrokerOpsIF(){;};
+    BrokerOpsIF() { ; };
     virtual void sendMsg(const Message &) = 0;
+
 protected:
 private:
 };
 
-/// @brief Interface implementada por el Cliente para recibir los tópicos subscriptos
+/// @brief Interface implemented in the SimClient to receive messages from the client
+/// representation in the broker side.
 class ClientOpsIF
 {
-    public:
-        ClientOpsIF(){;};
-        virtual void recvMsg (const Message &) = 0;
-    protected:
+public:
+    ClientOpsIF() { ; };
+    virtual void recvMsg(const Message &) = 0;
 
-    private:
+protected:
+private:
 };
 
+/// @brief Client representation in the broker side to
+/// manage connection, messages, subscriptions and retained topics
 class Client : public BrokerOpsIF
 {
-    public:
-        Client(ClientOpsIF *cifops);
-        /// @brief Mensaje Recibido en el cliente simulado en el broker
-        void sendMsg(const Message &m); 
-        /// @brief Send Msg to Sim Client
-        void sendBrokerCl2Client(const Message &m);
-        static void destroyCl (Client *cl);
+public:
+    /// @brief
+    /// @param cifops
+    Client(ClientOpsIF *cifops);
 
-    protected:
+    /// @brief Send message to the client representation in the broker to be added to the queue of messages.
+    void sendMsg(const Message &m);
 
-    private:
-        std::thread* m_thread;     /* Thread para el manejo de la cola de mensajes */
-        ClientOpsIF *cif;   /*Client interface*/
-        std::mutex cifmtx;  /*Client interface mutex */
-        std::list <Subscription *> subs; // List of pointer of Client Subscriptions. Each client process its own subs.
-        std::set <RetainedTopic *> topics; // Retained topic
-        std::queue<Message*> m_queue;   // Message to process queue
-        std::mutex m_mutex; // Mutex for msg (m_queue)
-        std::condition_variable m_cv;   // Condition variable to msg
-        // Thread Created to process each client
-        bool CreateThread();
-        //Point of entry to the thread
-        void Process();
-        // Process of msg type
-        bool processMsg(Message* msg);
-        // Process to conenect the client with the broker
-        void processConnect(ConnectMsg* m);
-        // Process of subscription with a topic in the broker
-        void processSubs(SubscribeMsg* msg);
-        // Process of publish a msg 
-        void processPublish(PublishMsg* m);
-        // Disconnect process
-        void processDisconnect();
+    /// @brief Send Msg to Sim Client
+    void sendBrokerCl2Client(const Message &m);
+    static void destroyCl(Client *cl);
 
+protected:
+private:
+    std::thread *m_thread;            /* Thread para el manejo de la cola de mensajes */
+    ClientOpsIF *cif;                 /*Client interface*/
+    std::mutex cifmtx;                /*Client interface mutex */
+    std::list<Subscription *> subs;   // List of pointer of Client Subscriptions. Each client process its own subs.
+    std::set<RetainedTopic *> topics; // Retained topic
+    std::queue<Message *> m_queue;    // Message to process queue
+    std::mutex m_mutex;               // Mutex for msg (m_queue)
+    std::condition_variable m_cv;     // Condition variable to msg
+
+    /// Thread Created to process each client
+    bool CreateThread();
+
+    /// Point of entry to the thread to process connection and msgs
+    void Process();
+    // Process of msg type
+    bool processMsg(Message *msg);
+    // Process to conenect the client with the broker
+    void processConnect(ConnectMsg *m);
+    // Process of subscription with a topic in the broker
+    void processSubs(SubscribeMsg *msg);
+    // Process of publish a msg
+    void processPublish(PublishMsg *m);
+    // Disconnect process
+    void processDisconnect();
 };
 
-/** \brief Estructura para representar los conceptos de subscripciones
- * hechas por los clientes y los tópicos publicados con el
- * requerimiento de ser retenidos para su inmediata utilización.
- *  \param topic Nombre del tópico
- *  \param *owner Cliente que realiza la subscripción
+/** \brief Structure to represent the concept of
+ *         subscriptions made by the clients.
+ *  \param topic Name of the topic
+ *  \param owner *Client who subscribe the topic
  */
 struct Subscription
 {
@@ -97,14 +104,16 @@ struct Subscription
 /// \param topic Topic name
 /// \param value Topic value
 /// \param owner *Client who publish the topic
-struct RetainedTopic{
+struct RetainedTopic
+{
     TopicName topic;
     TopicValue value;
     Client *owner;
 };
 
 /// \brief Compare topics functor
-struct CompareTopic{
+struct CompareTopic
+{
     bool operator()(Subscription *lhs, Subscription *rhs) const
     {
         return (lhs->topic < rhs->topic);
@@ -120,50 +129,56 @@ struct CompareRT
     };
 };
 
-
-/** \brief El Broker debe implementar el método registerClient(), que deberá 
- * instanciar un nuevo Client atender al correspondiente SimClient(). 
- * También deberá tener los caches para acceso búsqueda rápida de 
- * subscripciones y tópicos retenidos.
- * Clase Singleton.El broker del sistema debe recibir y enviar mensajes a distintos clientes.
- * Para poder realizar sus tareas, debería tener en su representación las siguientes entidades:
-- Mantener un contenedor con los clientes conectados
-- Conjunto de tópicos que están subscriptos, cada uno de ellos posiblemente subscripto por múltiples clientes. Tiene que ser eficiente buscar una subscripción por el nombre del tópico.
-- Conjunto de tópicos retenidos. Tiene que ser eficiente buscar un tópico por su nombre.
- * \param BrokerOpsIF* registerClient(ClientOpsIF *)
- * \return
- */
+/// @brief Broker representation who register SimClients through the interface BrokerOpsIF
+///. Singleton class.
 class Broker
 {
 public:
 
+    /// @brief Get the instance object of the broker who is a singleton.
+    /// @return Broker *Broker instance
     static Broker *getInstance();
     void deleteInstance();
+
+    /// @brief Create a new client representation in
+    /// the broker side trough the interface ClientOpsIF implemented
+    /// for the SimClient
     BrokerOpsIF *registerClient(ClientOpsIF *);
+    
     /// @brief Register a new subscription in the Broker
     /// @param s Subscription msg
     void registerNewSubs(Subscription *s);
 
     /// @brief Look for a topic subscription and send the publish msg to the client
-    void forEachSubs(PublishMsg *m , Client *cl);
+    /// @param m *Publish msg
+    /// @param cl *Client who send the msg
+    void forEachSubs(PublishMsg *m, Client *cl);
 
-    // Get user
+    /// @brief Get User name
+    /// @return string
     string getUser() { return this->username; };
-    // Get password
+
+    /// @brief Get password
+    /// @return string
     string getPass() { return this->password; };
-    // Delete Subcription
+
+    /// @brief Delete subscription
+    /// @param s *Subscription
     void delSub(Subscription *s);
-    // Delete retained topic
+    /// @brief Delete retained topic
+    /// @param rt *Retained topic
     void deleteRT(RetainedTopic *rt);
-    // Delete client
+
+    /// @brief  Delete client
+    /// @param cl *Client
     void deleteCl(Client *cl);
-protected:
+
 private:
-    std::list<Client *> clients; /// deque, list, vect
+    std::list<Client *> clients; // List of pointer of clients
     std::mutex clmtx;
 
-    // cache para búsquedas eficientes de suscriptores con functores de comparacion
-    std::multiset<Subscription *, CompareTopic> subs_cache; 
+    // cache for optimization of search of subscriptions with functor of comparation
+    std::multiset<Subscription *, CompareTopic> subs_cache;
     std::mutex sbsmtx;
 
     // Cache for retained topics with functores of comparation
@@ -171,17 +186,18 @@ private:
     std::mutex rtmtx;
 
     /// Singleton
-    Broker(){;};                                 /// Constructor
-    Broker(Broker const &) = delete;            /// copy constructor privado
-    Broker &operator=(Broker const &) = delete; /// operador asignación privado
+    Broker() { ; };                             /// Constructor
+    Broker(Broker const &) = delete;            /// copy constructor private
+    Broker &operator=(Broker const &) = delete; /// assignment operator private
     static Broker *m_pInstance;
 
+    /// @brief Look for a retained topic for the new subscription
+    /// and send the retained topic to the client
+    /// @param sb *Subscription
     void ifRT(Subscription *sb);
 
-    string username = "root";
-    string password = "1234";
+    string username = "root"; // User name
+    string password = "1234"; // Password
 };
-
-
 
 #endif // BROKER_H

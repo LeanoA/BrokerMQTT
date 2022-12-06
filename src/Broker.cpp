@@ -6,12 +6,6 @@
 /// Garantiza un solo Broker
 Broker *Broker::m_pInstance = NULL;
 
-// typedef std::multiset<Subscription *,CompareTopic>::iterator it_ct; // aliasing the iterator type used
-
-/// @brief Esta función es llamada para crear una unica instancia de la clase.
-/// No se permite llamar al constructor públicamente. El constructor es
-/// privado y solo es llamado por esta función de instancia.
-/// @return
 Broker *Broker::getInstance()
 {
     if (!m_pInstance)
@@ -24,12 +18,18 @@ Broker *Broker::getInstance()
 
 void Broker::deleteInstance()
 {
-    std::cout << "\t\t\tBROKER --> Delete Instance" << endl;
-    delete m_pInstance;
-    m_pInstance = NULL;
+    // If there are clients, don't delete the instance
+    if(clients.size() > 0){
+        std::cout << "\t\t\tBROKER --> There are clients, don't delete the instance" << endl;
+        return;
+    }else{
+        std::cout << "\t\t\tBROKER --> There are no clients, delete the instance" << endl;
+        delete m_pInstance;
+        m_pInstance = NULL;
+    };
 };
 
-/// @brief Create a new client with SimPublish/SimSub who derivate from CIientOpsfIF.
+
 BrokerOpsIF *Broker::registerClient(ClientOpsIF *cifops)
 {
     std::cout << "\t\t\tBROKER --> Register Client: " << cifops << endl;
@@ -67,6 +67,7 @@ void Broker::forEachSubs(PublishMsg *m, Client *cl)
             count++;
             std::cout << "\t\t\tBROKER --> Iteration "<< count <<" on Subscribers" << endl;
             Client *client = (*it)->owner;
+            // Check if the owner of the RT is the same that publish the msg
             if(client != cl)
                 client->sendBrokerCl2Client(*m);
             else
@@ -94,11 +95,8 @@ void Broker::forEachSubs(PublishMsg *m, Client *cl)
     }
 }
 
-/// @brief Manda Mensaje a todos los subscriptores nuevos si hay retenidos
-/// @param sb *Subscripcion
 void Broker::ifRT(Subscription *sb)
 {
-    Client *cl;
     RetainedTopic RT = RetainedTopic{sb->topic, "0", 0};
 
     std::unique_lock<std::mutex> lk(this->rtmtx);
@@ -109,11 +107,13 @@ void Broker::ifRT(Subscription *sb)
     {
         std::cout << "\t\t\tBROKER --> Sending RetainedTopic " << endl; 
 
-        PublishMsg m = PublishMsg((*it)->topic, (*it)->value);
         
         Client *client = sb->owner;
-        if(client != cl)
+        if(client != (*it)->owner)
+        {
+            PublishMsg m = PublishMsg((*it)->topic, (*it)->value);
             client->sendBrokerCl2Client(m);
+        }
         else
             std::cout << "\t\t\tBROKER --> Not send to the same client" << endl;
     }

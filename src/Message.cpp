@@ -1,3 +1,11 @@
+/**
+ * @file Message.cpp
+ * @author Alexander Leano
+ * @brief Message class
+ * @version 0.1
+ * @date 2022-12-05
+*/
+
 #include "../include/Message.h"
 
 Message::TypeM Message::getType() const

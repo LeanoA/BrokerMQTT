@@ -1,3 +1,11 @@
+/**
+ * @file SafeQueue.h
+ * @author Alexander Leano
+ * @brief SafeQueue class
+ * @version 0.1
+ * @date 2022-12-05
+*/
+
 #ifndef SafeQueue_H
 #define SafeQueue_H
 #include <mutex> // std::mutex

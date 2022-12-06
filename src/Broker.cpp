@@ -1,3 +1,12 @@
+/**
+ * @file Broker.cpp
+ * @author Alexander Leano
+ * @brief Broker implementation
+ * @version 0.1
+ * @date 2022-12-05
+ * 
+*/
+
 #include "../include/Broker.h"
 #include <stddef.h>  //Define NULL
 #include <algorithm> // std::for_each
@@ -144,6 +153,7 @@ void Broker::deleteCl(Client *cl)
     std::unique_lock<std::mutex> lk{clmtx};
     this->clients.remove(cl);
     lk.unlock();
+    delete cl;
 }
 
 Client::Client(ClientOpsIF *cifops) : cif{cifops}
@@ -180,7 +190,6 @@ void Client::Process()
         /// wait for a msg
         Message *msg = m_queue.dequeue(); // Oldest msg
         b = this->processMsg(msg);
-
     };
 };
 
@@ -230,14 +239,12 @@ void Client::processConnect(ConnectMsg *m)
     if ((m->getUser() == Broker::getInstance()->getUser()) && ((m->getPass() == Broker::getInstance()->getPass())))
     {
         std::cout << "\t\t\tBROKER/CLIENT --> CONNECTION OK" << endl;
-        ConnAckMsg *msj = new ConnAckMsg(ConnAckMsg::Status::CONNECTION_OK);
-        this->sendBrokerCl2Client(*msj);
+        this->sendBrokerCl2Client( ConnAckMsg(ConnAckMsg::Status::CONNECTION_OK) );
     }
     else
     {
         std::cout << "\t\t\tBROKER/CLIENT --> LOGIN ERROR" << endl;
-        ConnAckMsg *msj = new ConnAckMsg(ConnAckMsg::Status::LOGIN_ERROR);
-        this->sendBrokerCl2Client(*msj);
+        this->sendBrokerCl2Client( ConnAckMsg(ConnAckMsg::Status::LOGIN_ERROR) );
     }
 }
 

@@ -1,3 +1,11 @@
+/**
+ * @file Broker.h
+ * @author Alexander Leano
+ * @brief Broker class
+ * @version 0.1
+ * @date 2022-12-05
+*/
+
 #ifndef BROKER_H
 #define BROKER_H
 
@@ -46,6 +54,7 @@ protected:
 private:
 };
 
+
 /// @brief Client representation in the broker side to
 /// manage connection, messages, subscriptions and retained topics
 class Client : public BrokerOpsIF
@@ -61,12 +70,10 @@ public:
     /// @brief Send Msg to Sim Client
     void sendBrokerCl2Client(const Message &m);
     static void destroyCl(Client *cl);
-
-protected:
 private:
-    std::thread *m_thread;            /* Thread para el manejo de la cola de mensajes */
-    ClientOpsIF *cif;                 /*Client interface*/
-    std::mutex cifmtx;                /*Client interface mutex */
+    std::thread *m_thread;            // Thread to manage the client
+    ClientOpsIF *cif;                 // Client interface
+    std::mutex cifmtx;                // Client interface mutex to protect the access to the interface
     std::list<Subscription *> subs;   // List of pointer of Client Subscriptions. Each client process its own subs.
     std::set<RetainedTopic *> topics; // Retained topic
     SafeQueue<Message *> m_queue;     // Message to process queue
@@ -88,18 +95,17 @@ private:
     void processDisconnect();
 };
 
-/** \brief Structure to represent the concept of
- *         subscriptions made by the clients.
- *  \param topic Name of the topic
- *  \param owner *Client who subscribe the topic
- */
+/// @brief Structure to represent the concept of
+///        subscriptions made by the clients.
+///  \param topic Name of the topic
+///  \param owner *Client who subscribe the topic
 struct Subscription
 {
     TopicName topic;
     Client *owner;
 };
 
-/// \brief Structure for retained topics
+/// @brief Structure for retained topics
 /// \param topic Topic name
 /// \param value Topic value
 /// \param owner *Client who publish the topic

@@ -1,3 +1,11 @@
+/**
+ * @file SimClient.h
+ * @author Alexander Leano
+ * @brief SimClient class
+ * @version 0.1
+ * @date 2022-12-05
+*/
+
 #ifndef SIMCLIENT_H
 #define SIMCLIENT_H
 

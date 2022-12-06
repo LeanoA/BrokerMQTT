@@ -1,3 +1,11 @@
+/**
+ * @file SimClient.cpp
+ * @author Alexander Leano
+ * @brief SimClient implementation
+ * @version 0.1
+ * @date 2022-12-05
+*/
+
 #include "../include/SimClient.h"
 
 SimClient::SimClient(Broker &bkr)

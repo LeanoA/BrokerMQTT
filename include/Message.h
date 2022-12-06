@@ -1,3 +1,11 @@
+/**
+ * @file Message.h
+ * @author Alexander Leano
+ * @brief Message class
+ * @version 0.1
+ * @date 2022-12-05
+*/
+
 #ifndef MESSAGE_H
 #define MESSAGE_H
 

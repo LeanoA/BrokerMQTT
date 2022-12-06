@@ -1,6 +1,6 @@
 # Broker MQTT Simulation with C++
 
-Broker MQTT Simulation with C++ is a project that was developed as a educational project. The project aims to show the use of diferent C ++ features, such as: classes, inheritance, polymorphism, templates, exceptions, etc. Also, the project aims to show the use of gtest, a library for unit testing in C ++. The project use CMake as a build system.
+Broker MQTT Simulation with C++ is a project that was developed as a educational project. The project aims to show the use of diferent C ++ features, such as: classes, inheritance, polymorphism, templates, etc. Also, the project aims to show the use of gtest, a library for unit testing in C ++. The project use CMake as a build system.
 
 ## Introduction
 
@@ -11,13 +11,13 @@ This project is a simulation of a broker MQTT, which is a protocol for communica
 - The client is responsible for sending messages to the broker and receiving messages from the broker.
 
 ## Publish-Subscribe Model
-In this model of comunication exists producers of messages, called publishers, and consumers of messages, called subscribers. The subscribers express interest in one or more topics and only receive messages that are of interest, without knowledge of who the publishers are or if they even exist.
+In this model of comunication exists producers of messages, called publishers, and consumers of messages, called subscribers. The subscribers express interest in one or more topics, without knowledge of who the publishers are or if they even exist. The subscribers only recive messages that are of interest.
 
 In this systems, the publishers send messages to a broker, which is responsible for sending the messages to the subscribers. The broker receives messsages and sends them to all the subscribers that are interested in the topic of the message. In this way, the publishers not need to know who the subscribers are, and vice versa.
 
 The messages recieved by the broker are stored in a queue, which is a data structure that stores messages in a FIFO (First In First Out) order. The broker sends the messages to the subscribers in the same order that they were received. 
 
-In adition to the retransmission of messages to the subscrivers, the messages can be  reteined in the broker if the publisher indicates that the messages must be retained. In this case, the broker will send inmediatly the retained messages to a new subscribers that subscribe to a topic that the broker has retained messages.
+In adition to the retransmission of messages to the subscribers, the messages can be reteined in the broker if the publisher indicates that the messages must be retained. In this case, if a new client subscribes to a topic that has retained messages, the broker will send inmediatly the retained messages to the new subscriber.
 
 ## Message MQTT implemented in this project
 
@@ -102,13 +102,13 @@ To run the project, in the build directory, you need to execute the following co
 
 ### Run the tests
 
-To run the tests, in the build directory, you need to execute the following command:
+To run the tests, in the `/build` directory, you need to execute the following command:
 
 ```bash
-./Msgtest
 ./BrokerTest
-./ClientTest
+./MessageTest
 ./QueueTest
+./SimSubscriberTest
 ./SimTest
 ```
 

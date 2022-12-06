@@ -10,18 +10,18 @@ TEST(SafeQueueTest,Instantiation){
 }
 
 TEST(SafeQueueTest,enqueue){
-    SafeQueue<Message> q;
+    SafeQueue<Message *> q;
     TopicName tN = "topic";
     SubscribeMsg msg(tN);
-    q.enqueue(msg);
+    q.enqueue(&msg);
     ASSERT_TRUE(q.size()==1);
 }
 
 TEST(SafeQueueTest,dequeue){
-    SafeQueue<Message> q;
+    SafeQueue<Message*> q;
     TopicName tN = "topic";
     SubscribeMsg msg(tN);
-    q.enqueue(msg);
+    q.enqueue(&msg);
     EXPECT_EQ(q.size(),1);
     Message *m;
     m=q.dequeue();
@@ -29,8 +29,6 @@ TEST(SafeQueueTest,dequeue){
     EXPECT_EQ(dynamic_cast<SubscribeMsg *>(m)->getType(), Message::TypeM::SUBSCRIBE);
     EXPECT_EQ(dynamic_cast<SubscribeMsg *>(m)->getTopic(),"topic");
 }
-
-
 
 int main(int argc, char* argv[])
 {

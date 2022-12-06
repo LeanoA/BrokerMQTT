@@ -1,76 +1,64 @@
 #ifndef SafeQueue_H
 #define SafeQueue_H
-#include <mutex>          // std::mutex
-#include <queue>          // std::queue
+#include <mutex> // std::mutex
+#include <queue> // std::queue
 #include <condition_variable>
 
 // How to do a queue with a mutex in C++11 (or C++0x)
 // http://stackoverflow.com/questions/15278343/how-to-do-a-queue-with-a-mutex-in-c11-or-c0x
 // http://stackoverflow.com/questions/15278343/how-to-do-a-queue-with-a-mutex-in-c11-or-c0x/15278389#15278389
 
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+
+// A threadsafe-queue.
 template <class T>
 class SafeQueue
 {
-private:
-    std::queue<T*> m_queue;
-    mutable std::mutex m_mutex;
-    std::condition_variable m_cv;
 public:
-    // No copy constructor allowed
-    SafeQueue(const SafeQueue&) = delete;
-    // No assignment operator allowed
-    SafeQueue& operator=(const SafeQueue&) = delete;
+    SafeQueue(void): q(), m(), c()
+    {
+    }
 
-    SafeQueue();
-    // ~SafeQueue();
+    ~SafeQueue(void)
+    {
+    }
+
     // Add an element to the queue.
-    void enqueue(T& t);
+    void enqueue(T t)
+    {
+        std::lock_guard<std::mutex> lock(m);
+        q.push(t);
+        c.notify_one();
+    }
+
     // Get the "front"-element.
     // If the queue is empty, wait till a element is avaiable.
-    T* dequeue(void);
-    // Size of the queue
-    size_t size(void);
-};
-
-template <class T>
-SafeQueue<T>::SafeQueue(): m_queue(), m_mutex(), m_cv()
-{
-}
-
-// template <class T>
-// SafeQueue<T>::~SafeQueue()
-// {
-// }
-
-template <class T>
-void SafeQueue<T>::enqueue(T& t)
-{
-    std::unique_lock<std::mutex> lock(m_mutex);
-    m_queue.push(t.clone());
-    lock.unlock();
-    m_cv.notify_one();
-}
-template <class T>
-T* SafeQueue<T>::dequeue(void)
-{
-    std::unique_lock<std::mutex> lock(m_mutex);
-    while (m_queue.empty())
+    T dequeue(void)
     {
-        m_cv.wait(lock);
+        std::unique_lock<std::mutex> lock(m);
+        while (q.empty())
+        {
+            // release lock as long as the wait and reaquire it afterwards.
+            c.wait(lock);
+        }
+        T val = q.front();
+        q.pop();
+        return val;
     }
-    T* t = m_queue.front();
-    m_queue.pop();
-    lock.unlock();
-    return t;
-}
 
-template <class T>
-size_t SafeQueue<T>::size(void)
-{
-    std::unique_lock<std::mutex> lock(m_mutex);
-    size_t size = m_queue.size();
-    lock.unlock();
-    return size;
-}
+    // Return size of queue
+    int size(void)
+    {
+        std::lock_guard<std::mutex> lock(m);
+        return q.size();
+    }
+
+private:
+    std::queue<T> q;
+    mutable std::mutex m;
+    std::condition_variable c;
+};
 
 #endif // SafeQueue_H

@@ -1,5 +1,7 @@
 build
 .vscode
 .DS_Store
+DoxygenDoc
+Doxyfile
 
 Final_comentarios.pdf

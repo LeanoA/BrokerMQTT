@@ -13,7 +13,8 @@ int main()
     Broker* SingletonBroker=Broker::getInstance();
 
     std::vector<TopicName> tn{"Temperatura/roof"};
-    ///Espero antes de crear el publicador
+
+    // Wait 2 seconds to create the publisher
     std::this_thread::sleep_for (std::chrono::seconds(2));
 
     //New SimPublisher Client B, with topic "Temperatura/roof" and retain topic
